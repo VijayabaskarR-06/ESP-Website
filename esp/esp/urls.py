@@ -127,7 +127,10 @@ urlpatterns += [
 # Specific .html pages that have defaults
 urlpatterns += [
     url(r'^(faq|faq\.html)$', main.FAQView.as_view(), name='FAQ'),
-    url(r'^(contact|contact\.html)$', main.ContactUsView.as_view(), name='Contact Us'),
+    # Keep legacy contact.html route but expose a canonical, named contact URL for accessibility checks.
+    url(r'^contact/?$', main.ContactUsView.as_view(), name='contact'),
+    url(r'^contact\.html$', main.ContactUsView.as_view(), name='Contact Us'),
+    url(r'^privacy/?$', main.PrivacyView.as_view(), name='privacy'),
 ]
 
 urlpatterns += [
