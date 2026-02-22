@@ -123,6 +123,20 @@ class NavbarTest(TestCase):
         self.assertTrue(self.get_navbar_titles('/') == ['NavBar2', 'NavBar1A'], 'Altered navbar order not showing up: got %s, expected %s' % (self.get_navbar_titles('/'), ['NavBar2', 'NavBar1A']))
 
 
+class AccessibilityEmailTests(TestCase):
+    def test_contact_page_email_is_text(self):
+        response = self.client.get('/contact/')
+        self.assertContains(response, 'info@learningu.org')
+        self.assertContains(response, 'mailto:info@learningu.org')
+        self.assertNotContains(response, '<img src="')
+
+    def test_privacy_page_email_is_text(self):
+        response = self.client.get('/privacy/')
+        self.assertContains(response, 'info@learningu.org')
+        self.assertContains(response, 'mailto:info@learningu.org')
+        self.assertNotContains(response, '<img src="')
+
+
 class NoVaryOnCookieTest(ProgramFrameworkTest):
     """
     The "Vary: Cookie" header should not ever be set on certain views.
@@ -252,5 +266,4 @@ class JavascriptSyntaxTest(TestCase):
                 logger.info(line)
 
             self.assertEqual(num_errors, 0, 'Closure compiler detected Javascript syntax errors')
-
 

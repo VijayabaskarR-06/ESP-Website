@@ -131,6 +131,9 @@ class FAQView(DefaultQSDView):
 class ContactUsView(DefaultQSDView):
     template_name = "contact_qsd.html"
 
+class PrivacyView(DefaultQSDView):
+    template_name = "privacy.html"
+
 def contact(request, section='esp'):
     """
     This view should take an email and post to those people.
