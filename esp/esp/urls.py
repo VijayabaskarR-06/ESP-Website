@@ -127,6 +127,7 @@ urlpatterns += [
 urlpatterns += [
     url(r'^(faq|faq\.html)$', main.FAQView.as_view(), name='FAQ'),
     url(r'^(contact|contact\.html)$', main.ContactUsView.as_view(), name='Contact Us'),
+    url(r'^privacy/?$', TemplateView.as_view(template_name='privacy.html'), name='privacy'),
 ]
 
 urlpatterns += [
