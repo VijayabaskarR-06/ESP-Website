@@ -61,17 +61,8 @@ from esp.program.controllers.studentclassregmodule import RegistrationTypeContro
 
 @cache_function_for(10)
 def _full_status_data_cached(prog):
-    """Cached helper for OnSiteClassList.full_status.
-
-    Returns a list of [section_id, is_full] pairs.
-
-    This mirrors ClassSection.isFull(webapp=True) but avoids per-section
-    database queries by using stored enrollment/attendance counters and
-    queryset annotations.
-    """
     now = datetime.now()
 
-    # Mirrors ClassSection.isFull(webapp=True) tag parsing/logic.
     switch_time_program_attendance = Tag.getProgramTag(
         'switch_time_program_attendance', program=prog
     )
@@ -91,11 +82,9 @@ def _full_status_data_cached(prog):
     checked_in_qs = None
     if switch_time_program_attendance and now >= switch_time_program_attendance:
         checked_in_qs = prog.currentlyCheckedInStudents()
-        # Match isFull's ">= 5 checked-in students" guard.
         if checked_in_qs.count() >= 5:
             use_program_checkin_counts = True
 
-    # Capacity calculation is already cached at the program level.
     capacities = prog.capacity_by_section_id()
 
     sections_qs = (
@@ -110,7 +99,6 @@ def _full_status_data_cached(prog):
         )
     )
 
-    # Only compute checked-in-per-section counts if Mode 2 can apply.
     if use_program_checkin_counts:
         valid_reg_q = nest_Q(StudentRegistration.is_valid_qobject(now), 'studentregistration')
         sections_qs = sections_qs.annotate(
@@ -133,19 +121,16 @@ def _full_status_data_cached(prog):
     for sec in sections_qs.values(*fields):
         section_id = sec['id']
 
-        # Same as: if len(self.get_meeting_times()) == 0: return True
         if sec['meeting_count'] == 0:
             data.append([section_id, True])
             continue
 
         capacity = capacities.get(section_id, 0)
 
-        # Same as: if (self.num_students() == self._get_capacity(...) == 0): return False
         if (sec['enrolled_students'] == 0) and (capacity == 0):
             data.append([section_id, False])
             continue
 
-        # Mode 1: class attendance (after start + lag and attendance >=1)
         if (
             switch_lag_class_attendance
             and sec['first_start'] is not None
@@ -154,11 +139,9 @@ def _full_status_data_cached(prog):
         ):
             num_students = sec['attending_students']
 
-        # Mode 2: program check-in counts (after switch time and >=5 checked in)
         elif use_program_checkin_counts:
             num_students = sec.get('checked_in_students', 0)
 
-        # Mode 3: enrollment
         else:
             num_students = sec['enrolled_students']
 
