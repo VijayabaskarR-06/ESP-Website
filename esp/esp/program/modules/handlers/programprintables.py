@@ -1340,7 +1340,11 @@ class ProgramPrintables(ProgramModuleObj):
         if Tag.getProgramTag("student_schedule_format", prog):
             context["schedule_format"] = {x: True for x in json.loads(Tag.getProgramTag("student_schedule_format", prog))}
         else:
-            context["schedule_format"] = {choice[0]: True for choice in StudentScheduleFormatForm(program = prog).fields['schedule_fields'].choices}
+            context["schedule_format"] = {
+                choice[0]: True
+                for choice in StudentScheduleFormatForm(program=prog).fields["schedule_fields"].choices
+                if choice[0] != "amount_owed"
+            }
         context["pretext"] = Tag.getProgramTag("student_schedule_pretext", prog)
         context["posttext"] = Tag.getProgramTag("student_schedule_posttext", prog)
         if file_type == 'html':
@@ -2003,6 +2007,10 @@ class StudentScheduleFormatForm(forms.Form):
         if Tag.getProgramTag("student_schedule_format", program):
             self.fields['schedule_fields'].initial = json.loads(Tag.getProgramTag("student_schedule_format", program))
         else:
-            self.fields['schedule_fields'].initial = [choice[0] for choice in self.fields['schedule_fields'].choices]
+            self.fields["schedule_fields"].initial = [
+                choice[0]
+                for choice in self.fields["schedule_fields"].choices
+                if choice[0] != "amount_owed"
+            ]
         self.fields['pretext'].initial = Tag.getProgramTag("student_schedule_pretext", program)
         self.fields['posttext'].initial = Tag.getProgramTag("student_schedule_posttext", program)

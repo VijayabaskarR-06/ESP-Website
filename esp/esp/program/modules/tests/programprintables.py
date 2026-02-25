@@ -160,6 +160,24 @@ class ProgramPrintablesModuleTest(ProgramFrameworkTest):
             "attachment; filename=all_classes.csv"
         )
 
+    def testStudentSchedulesHtmlDoesNotShowAmountOwedByDefault(self):
+        import json
+        from esp.tagdict.models import Tag
+        Tag.unSetTag(key="student_schedule_format", target=self.program)
+        response = self.get_response("studentschedules/html", "students", "enrolled")
+        self.assertNotContains(response, "Amount owed:")
+
+    def testStudentSchedulesHtmlShowsAmountOwedWhenEnabled(self):
+        import json
+        from esp.tagdict.models import Tag
+        Tag.setTag(
+            key="student_schedule_format",
+            value=json.dumps(["username", "userid", "amount_owed"]),
+            target=self.program,
+        )
+        response = self.get_response("studentschedules/html", "students", "enrolled")
+        self.assertContains(response, "Amount owed:")
+
 
 class TestAllClassesSelectionForm(ProgramFrameworkTest):
 

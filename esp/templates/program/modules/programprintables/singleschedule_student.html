@@ -84,7 +84,7 @@ If you have any questions or would like to switch classes, please go to the prog
    <b>{{ student.name }}<br />{{ student.id }}</b>
   </td>
   <td width="30%">
-    <b>Amount owed: ${{ student.itemizedcosttotal|floatformat:"-2" }}</b>
+    {% if schedule_format.amount_owed %}<b>Amount owed: ${{ student.itemizedcosttotal|floatformat:"-2" }}</b>{% endif %}
   </td>
  </tr>
 {% endcomment %}
